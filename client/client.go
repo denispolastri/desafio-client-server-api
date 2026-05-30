@@ -49,11 +49,19 @@ func LeDolarBancoDeDados() {
 		// Verifica se o erro foi por timeout
 		if ctx.Err() == context.DeadlineExceeded {
 			slog.Error("timeout: requisição excedeu 300ms")
+			return
 		}
 		return
 	}
 	defer request.Body.Close()
 
+	// Verifica se o status code é 200 OK
+	if request.StatusCode != http.StatusOK {
+		slog.Error("servidor retornou erro", "status_code", request.StatusCode)
+		return
+	}
+
+	// lê a requisição do server
 	response, err := io.ReadAll(request.Body)
 	if err != nil {
 		slog.Error("erro ao ler o body da resposta", "error", err)
@@ -67,8 +75,15 @@ func LeDolarBancoDeDados() {
 	err = json.Unmarshal(response, &bid)
 	if err != nil {
 		slog.Error("erro ao fazer o parse da resposta", "error", err)
+		return
 	} else {
 		slog.Info("cotação do dólar lida com sucesso", "bid", bid)
+	}
+
+	// verifica se o valor é diferenteigual a zero (vazio) antes de gravar no arquivo
+	if bid == "" {
+		slog.Error("cotação do dólar vazia, não será gravada no arquivo")
+		return
 	}
 
 	// Cria o arquivo cotacao.txt
@@ -82,9 +97,8 @@ func LeDolarBancoDeDados() {
 		_, err = file.WriteString("Dólar:{" + bid + "}")
 		if err != nil {
 			slog.Error("erro ao escrever no arquivo", "error", err)
+		} else {
+			slog.Info("cotação do dólar gravada no arquivo cotacao.txt")
 		}
 	}
-
-	slog.Info("cotação do dólar gravada no arquivo cotacao.txt")
-
 }

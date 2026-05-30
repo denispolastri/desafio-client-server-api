@@ -16,16 +16,7 @@ import (
 
 type Dollar struct {
 	gorm.Model
-	//Code      string `json:"code"`
-	//CodeIn    string `json:"codeIn"`
-	Name string `json:"name"`
-	//High      string `json:"high"`
-	//Low       string `json:"low"`
-	//VarBid    string `json:"varBid"`
-	//PctChange string `json:"pctChange"`
 	Bid string `json:"bid"`
-	//Ask       string `json:"ask"`
-	//Timestamp string `json:"timestamp"`
 }
 type DollarBR struct {
 	USDBRL Dollar `json:"USDBRL"`
@@ -41,6 +32,7 @@ func Server() {
 
 	// Inicia conexão com banco de dados SQLite
 	db := initDB()
+	defer db.Close()
 
 	// Define valor HTTP_PORT
 	httpPort := "8080"
@@ -60,13 +52,11 @@ func initDB() *sql.DB {
 		slog.Error("erro ao conectar no banco de dados", "error", err.Error())
 		panic(err)
 	}
-	defer db.Close()
 
 	// Cria a tabela se não existir
 	createTableSQL := `
     CREATE TABLE IF NOT EXISTS dollars (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
         bid TEXT,
         created_at DATETIME,
         updated_at DATETIME
@@ -134,12 +124,11 @@ func GravaCotacao(data Dollar, db *sql.DB) error {
 		return err
 	}
 
-	//query := `INSERT INTO dollars (code, code_in, name, high, low, var_bid, pct_change, bid, ask, timestamp, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`
-	query := `INSERT INTO dollars (name, bid, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'))`
-	_, err = tx.ExecContext(ctx, query /*data.Code, data.CodeIn,*/, data.Name /*data.High, data.Low, data.VarBid, data.PctChange,*/, data.Bid /*data.Ask, data.Timestamp*/)
+	query := `INSERT INTO dollars (bid, created_at, updated_at) VALUES (?, datetime('now'), datetime('now'))`
+	_, err = tx.ExecContext(ctx, query, data.Bid)
 
 	// Simula demora na execução para teste do banco
-	//time.Sleep(9 * time.Millisecond)
+	//time.Sleep(11 * time.Millisecond)
 
 	// Verifica timeout imediatamente após execução
 	if ctx.Err() != nil {
@@ -169,7 +158,7 @@ func GravaCotacao(data Dollar, db *sql.DB) error {
 	slog.Info("requisição finalizada", "duração_ms", duration.Milliseconds())
 
 	// Sleep para simular demora na execução para o timeout do client
-	//time.Sleep(295 * time.Millisecond)
+	//time.Sleep(300 * time.Millisecond)
 
 	return nil
 }
