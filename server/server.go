@@ -38,7 +38,7 @@ func Server() {
 	httpPort := "8080"
 
 	http.HandleFunc("/cotacao", func(w http.ResponseWriter, r *http.Request) {
-		ConsultaCotacaoSiteEconomia(w, r, db)
+		consultaCotacaoSiteEconomia(w, r, db)
 	})
 	slog.Info("Server HTTP UP port " + httpPort)
 	http.ListenAndServe(":"+httpPort, nil)
@@ -73,7 +73,7 @@ func initDB() *sql.DB {
 }
 
 // Consulta a cotação do dolar
-func ConsultaCotacaoSiteEconomia(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func consultaCotacaoSiteEconomia(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	var urlDolar string = "https://economia.awesomeapi.com.br/json/last/USD-BRL"
 
@@ -92,7 +92,7 @@ func ConsultaCotacaoSiteEconomia(w http.ResponseWriter, r *http.Request, db *sql
 		slog.Error("erro ao fazer o parse da resposta", "error", err)
 	}
 	// Grava os dados no banco de dados
-	err = GravaCotacao(data.USDBRL, db)
+	err = gravaCotacao(data.USDBRL, db)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
@@ -107,7 +107,7 @@ func ConsultaCotacaoSiteEconomia(w http.ResponseWriter, r *http.Request, db *sql
 }
 
 // Faz gravação da cotação no banco de dados
-func GravaCotacao(data Dollar, db *sql.DB) error {
+func gravaCotacao(data Dollar, db *sql.DB) error {
 
 	var timeoutDuration = 10 * time.Millisecond
 

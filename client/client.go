@@ -40,7 +40,6 @@ func LeDolarBancoDeDados() {
 		slog.Error("erro ao criar a requisição", "error", err)
 		return
 	}
-
 	// Executa a requisição
 	client := &http.Client{}
 	request, err := client.Do(req)
@@ -60,14 +59,12 @@ func LeDolarBancoDeDados() {
 		slog.Error("servidor retornou erro", "status_code", request.StatusCode)
 		return
 	}
-
 	// lê a requisição do server
 	response, err := io.ReadAll(request.Body)
 	if err != nil {
 		slog.Error("erro ao ler o body da resposta", "error", err)
 		return
 	}
-
 	duration := time.Since(start)
 	slog.Info("requisição finalizada", "duração_ms", duration.Milliseconds())
 
@@ -79,26 +76,32 @@ func LeDolarBancoDeDados() {
 	} else {
 		slog.Info("cotação do dólar lida com sucesso", "bid", bid)
 	}
-
 	// verifica se o valor é diferenteigual a zero (vazio) antes de gravar no arquivo
 	if bid == "" {
 		slog.Error("cotação do dólar vazia, não será gravada no arquivo")
 		return
+	} else {
+		err = gravaArqTxt(bid)
+		if err == nil {
+			slog.Info("cotação do dólar gravada no arquivo cotacao.txt")
+		}
 	}
+}
 
+// Cria/grava valor do dolar no arquivo texto
+func gravaArqTxt(bid string) error {
 	// Cria o arquivo cotacao.txt
 	file, err := os.Create("cotacao.txt")
 	if err != nil {
 		slog.Error("erro ao criar o arquivo", "error", err)
+		return err
 	}
 	defer file.Close()
 
-	if err == nil {
-		_, err = file.WriteString("Dólar:{" + bid + "}")
-		if err != nil {
-			slog.Error("erro ao escrever no arquivo", "error", err)
-		} else {
-			slog.Info("cotação do dólar gravada no arquivo cotacao.txt")
-		}
+	_, err = file.WriteString("Dólar:{" + bid + "}")
+	if err != nil {
+		slog.Error("erro ao escrever no arquivo", "error", err)
+		return err
 	}
+	return nil
 }
