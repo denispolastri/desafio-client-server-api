@@ -21,3 +21,9 @@ O server.go cria o banco de dados, a tabela dolar através da func initDb() e ag
 O client faz um Get no endereço localhost:8080/cotacao e chama a função consultaCotacaoSiteEconomia() que consulta o valor do dolar e grava no banco de dados através da func gravaCotacao().
 
 O client recebe o valor do dolar no request.Body e grava o valor no arquivo cotacao.txt através da func gravaArqTxt().
+
+Existem dois pontos de testes no server.go, na linha 131, descomentando o sleep(), irá simular a demora de gravação do dolar no banco de dados, o que vai gerar um erro de timeout.
+
+Na linha 161, outro ponto de sleep(), para simular a demora de resposta do servidor.
+
+Em ambos os casos, o arquivo cotacao.txt não é criado no client.go.
