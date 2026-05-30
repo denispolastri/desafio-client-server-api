@@ -12,14 +12,14 @@ import (
 	"github.com/denispolastri/desafio-client-server-api/server"
 )
 
-func main() {
+func Client() {
 
 	// Logger default
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
-
+	slog.Info("Iniciando Client...")
 	LeDolarBancoDeDados()
-
+	slog.Info("Finalizando Client...")
 }
 
 type DollarBR struct {
@@ -61,7 +61,7 @@ func LeDolarBancoDeDados() {
 	}
 
 	duration := time.Since(start)
-	slog.Info("requisição finalizada", "duration_ms", duration.Milliseconds())
+	slog.Info("requisição finalizada", "duração_ms", duration.Milliseconds())
 
 	var bid string
 	err = json.Unmarshal(response, &bid)
@@ -84,5 +84,7 @@ func LeDolarBancoDeDados() {
 			slog.Error("erro ao escrever no arquivo", "error", err)
 		}
 	}
+
+	slog.Info("cotação do dólar gravada no arquivo cotacao.txt")
 
 }
