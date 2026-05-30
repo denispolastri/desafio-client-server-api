@@ -33,3 +33,6 @@ go.work.sum
 
 # txt files
 *.txt
+
+#folder vscode
+.vscode/
